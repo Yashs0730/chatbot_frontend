@@ -1,0 +1,133 @@
+/* ── Legacy CRA stubs (kept to avoid import errors) ── */
+.App { text-align: center; }
+.App-logo { height: 40vmin; pointer-events: none; }
+.App-header {
+  background-color: #282c34; min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-size: calc(10px + 2vmin); color: white;
+}
+.App-link { color: #61dafb; }
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Markdown table styles ── */
+.markdown-body table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+.markdown-body th { background-color: #f2f2f2; }
+
+/* ── Loader dot bounce ── */
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%           { transform: scale(1);   opacity: 1;   }
+}
+
+/* ─────────────────────────────────────────────────────────
+   SIDEBAR — collapsible with smooth slide animation
+   ───────────────────────────────────────────────────────── */
+
+/* Base sidebar — transitions width & padding together */
+.sidebar {
+  width: 260px;
+  padding: 12px;
+  flex-shrink: 0;
+  overflow: hidden;           /* clip content during slide */
+  transition: width 0.3s ease, padding 0.3s ease;
+  position: relative;
+}
+
+/* Collapsed state: zero width, zero horizontal padding */
+.sidebar--closed {
+  width: 48px;               /* just wide enough for the toggle btn */
+  padding: 12px 0;
+}
+
+/* Inner wrapper fades out / clips when collapsed */
+.sidebar-content {
+  width: 260px;              /* fixed — prevents content from squishing */
+  opacity: 1;
+  transition: opacity 0.2s ease;
+  pointer-events: auto;
+}
+.sidebar--closed .sidebar-content {
+  opacity: 0;
+  pointer-events: none;      /* prevent clicks on hidden items */
+}
+
+/* ── Toggle chevron button ── */
+.sidebar-toggle {
+  position: absolute;
+  top: 14px;
+  right: 8px;                /* sits on the right edge of the sidebar */
+  z-index: 10;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  color: #555;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  padding: 0;
+}
+.sidebar-toggle:hover {
+  background: #f0f0f0;
+  color: #000;
+}
+
+/* When sidebar is closed the button sits centred in the narrow strip */
+.sidebar--closed .sidebar-toggle {
+  right: 50%;
+  transform: translateX(50%);
+}
+
+/* ─────────────────────────────────────────────────────────
+   DELETE button — appears on row hover
+   ───────────────────────────────────────────────────────── */
+
+/* Make the row a flex container so the delete btn sits at the far right */
+.history-item-row {
+  position: relative;
+}
+
+/* Hidden by default */
+.delete-chat-btn {
+  margin-left: auto;   /* push to the right edge */
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+/* Reveal on row hover */
+.history-item-row:hover .delete-chat-btn {
+  opacity: 1;
+}
+
+/* Subtle red highlight on the button itself when hovered */
+.delete-chat-btn:hover {
+  background: #ffe0e0;
+}
