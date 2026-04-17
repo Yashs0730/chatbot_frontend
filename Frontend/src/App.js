@@ -3,7 +3,6 @@ import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import "./App.css";
-
 // ─── helpers ──────────────────────────────────────────────────────────────────
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
 
@@ -53,8 +52,7 @@ const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const bottomRef = useRef(null);
 
-  const logoUrl =
-    "https://media.licdn.com/dms/image/v2/C4D0BAQEi4cevcx6xiw/company-logo_200_200/company-logo_200_200/0/1631309511072?e=1775692800&v=beta&t=v1PznnHXLPzTf9j8FEIrkdZVmuT_MoagvasKkC_kDk8";
+  const logoUrl = "triazine.jpeg";
 
   // ── Persist sessions to localStorage on every change ─────────────────────
   useEffect(() => {
@@ -223,12 +221,19 @@ const App = () => {
         {/* Sidebar contents — hidden when collapsed */}
         <div className="sidebar-content">
           <button
-            style={styles.newChatBtn}
+            className="new-chat-btn"
             onClick={startNewChat}
             title="Start a new chat"
           >
-            <span style={styles.newChatIcon}></span>
-            <span style={{ fontWeight: "600", fontSize: "14px" }}>New Chat</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span>New Chat</span>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.4 }}>
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
 
           <div style={styles.historySection}>
@@ -245,8 +250,9 @@ const App = () => {
                     className="history-item-row"
                     style={{
                       ...styles.historyItem,
-                      backgroundColor: isActive ? "#ececec" : "transparent",
-                      fontWeight: isActive ? "600" : "normal",
+                      backgroundColor: isActive ? "#E9ECEF" : "transparent",
+                      fontWeight: isActive ? "600" : "500",
+                      color: isActive ? "#111" : "#444",
                     }}
                     onClick={() => {
                       setActiveId(session.id);
@@ -288,47 +294,54 @@ const App = () => {
           )}
 
           <div style={styles.messageContainer}>
-            {messages.map((msg) => (
-              <div key={msg.id} style={styles.msgRow}>
-                <div style={styles.msgText}>
-                  <div style={styles.msgHeader}>
-                    <img
-                      src={msg.sender === "user" ? "" : logoUrl}
-                      style={
-                        msg.sender === "user"
-                          ? { display: "none" }
-                          : styles.miniBotLogo
-                      }
-                      alt=""
-                    />
-                    <strong style={{ fontSize: "14px" }}>
-                      {msg.sender === "user" ? "You" : "Assistant"}
-                    </strong>
-                  </div>
-                  <div
-                    style={{ marginTop: "8px", overflowX: "auto" }}
-                    className="markdown-body"
-                  >
-                    {msg.sender === "user" ? (
-                      msg.text
-                    ) : (
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {msg.text}
-                      </ReactMarkdown>
-                    )}
+            {messages.map((msg) => {
+              const isUser = msg.sender === "user";
+              return (
+                <div key={msg.id} style={{ ...styles.msgRow, justifyContent: isUser ? "flex-end" : "flex-start" }}>
+                  {!isUser && (
+                    <img src={logoUrl} style={styles.miniBotLogo} alt="Bot" />
+                  )}
+                  <div style={{
+                    ...styles.msgBubble,
+                    maxWidth: isUser ? "75%" : "100%",
+                    backgroundColor: isUser ? "#2B6BF3" : "#ffffff",
+                    color: isUser ? "#ffffff" : "#1d1d1f",
+                    boxShadow: isUser ? "0 4px 14px rgba(43, 107, 243, 0.25)" : "0 4px 14px rgba(0,0,0,0.06)",
+                    borderBottomRightRadius: isUser ? "4px" : "18px",
+                    borderBottomLeftRadius: !isUser ? "4px" : "18px",
+                  }}>
+                    <div style={{ fontWeight: "700", fontSize: "12px", marginBottom: "6px", opacity: 0.85 }}>
+                      {isUser ? "You" : "Assistant"}
+                    </div>
+                    <div style={{ overflowX: "auto" }} className={!isUser ? "markdown-body" : ""}>
+                      {isUser ? (
+                        msg.text
+                      ) : (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.text}
+                        </ReactMarkdown>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {/* Loading dots */}
             {isLoading && activeSession.id === activeId && (
-              <div style={styles.loaderRow}>
-                <img src={logoUrl} style={styles.miniBotLogo} alt="" />
-                <div style={styles.loaderDots}>
-                  <span style={{ ...styles.dot, animationDelay: "0s" }} />
-                  <span style={{ ...styles.dot, animationDelay: "0.2s" }} />
-                  <span style={{ ...styles.dot, animationDelay: "0.4s" }} />
+              <div style={{ ...styles.msgRow, justifyContent: "flex-start" }}>
+                <img src={logoUrl} style={styles.miniBotLogo} alt="Bot" />
+                <div style={{
+                  ...styles.msgBubble,
+                  backgroundColor: "#ffffff",
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.06)",
+                  borderBottomLeftRadius: "4px",
+                }}>
+                  <div style={styles.loaderDots}>
+                    <span style={{ ...styles.dot, animationDelay: "0s" }} />
+                    <span style={{ ...styles.dot, animationDelay: "0.2s" }} />
+                    <span style={{ ...styles.dot, animationDelay: "0.4s" }} />
+                  </div>
                 </div>
               </div>
             )}
@@ -339,7 +352,11 @@ const App = () => {
         {/* ── INPUT ── */}
         <footer style={styles.footer}>
           <div style={styles.inputContainer}>
-            <button style={styles.plusBtn}>+</button>
+            <button className="plus-btn" aria-label="Add attachment" title="Add attachment">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
             <input
               style={styles.input}
               placeholder="Ask anything..."
@@ -348,15 +365,22 @@ const App = () => {
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             />
             <div style={styles.inputRightIcons}>
-              <button style={styles.iconBtn}>🎤</button>
+              <button className="mic-btn" aria-label="Use microphone" title="Use microphone">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" fill="currentColor" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
               <button
                 onClick={sendMessage}
-                style={{
-                  ...styles.sendBtn,
-                  backgroundColor: input ? "#000" : "#e5e5e5",
-                }}
+                className={`send-btn ${input ? 'send-btn-active' : 'send-btn-inactive'}`}
+                aria-label="Send message"
+                title="Send message"
               >
-                ↑
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ transform: input ? 'scale(1.05)' : 'scale(1)', transition: '0.2s' }}>
+                  <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </button>
             </div>
           </div>
@@ -374,8 +398,8 @@ const styles = {
   layout: {
     display: "flex",
     height: "100vh",
-    backgroundColor: "#fff",
-    color: "#000",
+    backgroundColor: "#F4F7F9",
+    color: "#1d1d1f",
     fontFamily:
       "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   },
@@ -385,30 +409,14 @@ const styles = {
     overflowY: "auto",
     position: "relative",
   },
-  newChatBtn: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    padding: "10px 14px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "14px",
-    transition: "background 0.2s",
-    background: "none",
-    border: "none",
-    width: "100%",
-    textAlign: "left",
-    color: "#222",
-  },
-  newChatIcon: { fontSize: "16px" },
   historySection: { marginTop: "20px", flex: 1, overflowY: "auto" },
   historyLabel: {
-    fontSize: "11px",
-    color: "#999",
-    padding: "0 10px 8px 10px",
+    fontSize: "12px",
+    color: "#888",
+    padding: "0 10px 12px 10px",
     fontWeight: "700",
     textTransform: "uppercase",
-    letterSpacing: "0.06em",
+    letterSpacing: "0.08em",
   },
   historyEmpty: {
     padding: "10px",
@@ -419,13 +427,13 @@ const styles = {
   historyItem: {
     display: "flex",
     alignItems: "center",
-    gap: "8px",
-    padding: "9px 10px",
-    fontSize: "13px",
-    borderRadius: "8px",
+    gap: "10px",
+    padding: "12px 14px",
+    fontSize: "14px",
+    borderRadius: "10px",
     cursor: "pointer",
-    color: "#333",
-    transition: "background 0.15s",
+    transition: "all 0.15s ease",
+    marginBottom: "4px",
   },
   historyIcon: { fontSize: "14px", flexShrink: 0 },
   historyText: {
@@ -440,11 +448,14 @@ const styles = {
     position: "relative",
   },
   header: {
-    padding: "15px 20px",
+    padding: "16px 24px",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    background: "#fff",
+    background: "rgba(255, 255, 255, 0.6)",
+    backdropFilter: "blur(12px)",
+    borderBottom: "1px solid rgba(0,0,0,0.04)",
+    zIndex: 10,
   },
   modelSelector: {
     fontWeight: "600",
@@ -487,41 +498,46 @@ const styles = {
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
   },
   welcomeTitle: { fontSize: "24px", fontWeight: "600", color: "#222" },
-  messageContainer: { width: "100%", maxWidth: "720px", padding: "20px" },
-  msgRow: { marginBottom: "32px", fontSize: "16px", lineHeight: "1.6" },
-  msgText: {},
-  msgHeader: { display: "flex", alignItems: "center", gap: "10px" },
-  miniBotLogo: { width: "24px", height: "24px", borderRadius: "50%" },
-  loaderRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    marginBottom: "28px",
+  messageContainer: { width: "100%", maxWidth: "100%", padding: "20px 4%" },
+  msgRow: { display: "flex", width: "100%", marginBottom: "24px", gap: "12px", alignItems: "flex-end" },
+  msgBubble: {
+    padding: "14px 18px",
+    borderRadius: "18px",
+    fontSize: "15px",
+    lineHeight: "1.6",
+    position: "relative",
   },
-  loaderDots: { display: "flex", gap: "5px", alignItems: "center" },
+  miniBotLogo: { width: "34px", height: "34px", borderRadius: "50%", flexShrink: "0" },
+  loaderRow: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "28px" },
+  loaderDots: { display: "flex", gap: "6px", alignItems: "center", padding: "6px" },
   dot: {
     width: "8px",
     height: "8px",
     borderRadius: "50%",
-    backgroundColor: "#aaa",
+    backgroundColor: "#bbb",
     animation: "dotBounce 1.2s infinite ease-in-out",
   },
   footer: {
-    padding: "20px",
+    padding: "12px 20px 16px 20px",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    background: "#fff",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(20px)",
+    borderTop: "1px solid rgba(0,0,0,0.04)",
+    zIndex: 10,
   },
   inputContainer: {
     width: "100%",
-    maxWidth: "720px",
+    maxWidth: "850px",
     display: "flex",
     alignItems: "center",
-    backgroundColor: "#f4f4f4",
-    borderRadius: "26px",
-    padding: "10px 16px",
+    backgroundColor: "#ffffff",
+    borderRadius: "32px",
+    padding: "8px 14px",
     gap: "12px",
+    boxShadow: "0 8px 30px rgba(0,0,0,0.06)",
+    border: "1px solid rgba(0,0,0,0.05)",
   },
   input: {
     flex: 1,
@@ -530,35 +546,10 @@ const styles = {
     outline: "none",
     fontSize: "16px",
     padding: "8px",
+    color: "#1d1d1f",
   },
-  plusBtn: {
-    background: "none",
-    border: "1px solid #ccc",
-    width: "28px",
-    height: "28px",
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "20px",
-    cursor: "pointer",
-    color: "#666",
-  },
-  iconBtn: { background: "none", border: "none", fontSize: "20px", cursor: "pointer" },
   inputRightIcons: { display: "flex", gap: "12px", alignItems: "center" },
-  sendBtn: {
-    width: "32px",
-    height: "32px",
-    borderRadius: "50%",
-    border: "none",
-    color: "#fff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    transition: "0.3s",
-  },
-  disclaimer: { fontSize: "12px", color: "#999", marginTop: "14px" },
+  disclaimer: { fontSize: "12px", color: "#999", marginTop: "8px" },
 };
 
 export default App;
